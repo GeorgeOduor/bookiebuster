@@ -1,16 +1,6 @@
 rm(list = ls())
-library(glue)
-require(httr)
-library(dplyr)
-library(jsonlite)
-library(purrr)
-library(tidyr)
-library(tibble)
-library(rvest)
-library(stringr)
-library(R6)
-library(futile.logger)
-library(logging)
+library(glue);library(httr);library(dplyr);library(jsonlite);library(purrr);library(tidyr);library(tibble);library(rvest)
+library(stringr);library(R6);library(futile.logger);library(logging)
 
 classOddsScrapper <- R6Class(public = list(
   headers = c(
@@ -86,7 +76,7 @@ classOddsScrapper <- R6Class(public = list(
         html_element("tournament-component") %>%
         html_attr(":sport-data") %>%
         fromJSON() %>% pluck("oddsRequest") %>% pluck("url")
-      match_id = unlist(strsplit("/ajax-sport-country-tournament-archive_/1/nmP0jyrt/","/"))
+      match_id = unlist(strsplit(odds_url,"/"))
       match_id <- unlist(match_id)[length(match_id)]
       out <- list(
         odds_url = paste0("https://www.oddsportal.com", odds_url, "X0/1/0/?_=1703600980101"),
@@ -210,13 +200,13 @@ classOddsScrapper <- R6Class(public = list(
       return(NULL)
     })
   },
-  main = function(number = NULL,seasons_count = NULL) {
+  main = function(number = NULL,seasons_count = NULL,primary_links) {
     con <- self$db
     # get available league links
-    primary_links <- self$primaryLinks(self$res)
-    if (!is.null(number)) {
-      primary_links <- primary_links[seq(number)]
-    }
+    #primary_links <- self$primaryLinks(self$res)
+    # if (!is.null(number)) {
+    #   primary_links <- primary_links[seq(number)]
+    # }
 
     odds <- map(primary_links,.f = function(x){
       #available seasons
@@ -249,7 +239,10 @@ classOddsScrapper <- R6Class(public = list(
                 })
               }
               )
-            DBI::dbWriteTable(con, "match_avgodds", odds, append = T)
+            if (!is.null(odds)) {
+              DBI::dbWriteTable(con, "match_avgodds", odds, append = T)
+            }
+
             }
         },error=function(e){
           flog.error(glue("Error in main function: {e$message}"))
@@ -259,9 +252,34 @@ classOddsScrapper <- R6Class(public = list(
     return(odds)
   }
 ))
-con <- DBI::dbConnect(RSQLite::SQLite(),"inst/app/bookiebuster.db")
-init <- classOddsScrapper$new(db = con)
-seasons_ <- init$main(2,2)
-seasons_
+init <- classOddsScrapper$new(db = NULL)
+primaryLinks <- init$primaryLinks(res = init$res) %>% unique()
+
+files <- tibble(links=primaryLinks) %>%
+  mutate(group = rep(1:20,length.out = nrow(.))) %>%
+  split(.$group)
+
+for (variable in files) {
+  group <- pull(variable,group) %>% unique()
+  job::job(title = paste0("Group_",group) ,{
+    library(glue);library(httr);library(dplyr);library(jsonlite);library(purrr);library(tidyr);library(tibble);library(rvest);library(stringr);library(R6);library(futile.logger);library(logging)
+    con <- DBI::dbConnect(RSQLite::SQLite(),glue("inst/app/bookiebuster_{group}.db"))
+    init <- classOddsScrapper$new(db = con)
+    # primaryLinks <- init$primaryLinks(res = init$res)
+    seasons_ <- init$main(primary_links = variable$links)
+  }, import = "all")
+
+}
+available_data <- function(con) {
+  match_avgodds <- dir("inst/app/",pattern = ".db") %>%
+    map_df(.f = function(x){
+      con <- DBI::dbConnect(RSQLite::SQLite(),glue("inst/app/{x}"))
+      # dbListTables(con)
+      tbl(con,"match_avgodds") %>% collect()
+    })
+  return(match_avgodds)
+}
+
+
 
 

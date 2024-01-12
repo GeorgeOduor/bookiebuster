@@ -1,1 +1,7 @@
 .Rproj.user
+/inst/app/b*
+/inst/app/o*
+/inst/app/odds.db
+/inst/app/bookiebuster.db
+
+
