@@ -6,7 +6,7 @@ jobs:
   import-data:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up R
@@ -20,7 +20,4 @@ jobs:
 
       - name: Import data
         run: |
-          
           Rscript -e 'source("R/testR.R")'
-
-
