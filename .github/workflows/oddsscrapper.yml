@@ -16,6 +16,6 @@ jobs:
             any::googlesheets4
 
       - name: Import data
-        run: Rscript -e 'source("./R/testR.R")'
+        run: Rscript -e 'source("~/R/testR.R")'
 
 
