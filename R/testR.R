@@ -1,7 +1,8 @@
 library(googlesheets4)
 df = data.frame(matrix(rnorm(20), nrow=10))
+print(getwd())
 options(
-  gargle_oauth_cache = "./.secrets/",
+  gargle_oauth_cache = ".secrets/",
   gargle_oauth_email = "george.wamaya@gmail.com"
   )
 gs4_auth()
