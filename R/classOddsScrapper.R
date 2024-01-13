@@ -232,7 +232,7 @@ classOddsScrapper <- R6Class(public = list(
               map(.f = function(x) {
                 tryCatch({
                   if (!is.null(x)) {
-                    DBI::dbWriteTable(con,"odds_comparison",self$oddsCompare(x),append = T)
+                    # DBI::dbWriteTable(con,"odds_comparison",self$oddsCompare(x),append = T)
                   }
                 },error = function(e){
                   flog.error(glue("Error in main function: {e$message}"))
@@ -240,7 +240,14 @@ classOddsScrapper <- R6Class(public = list(
               }
               )
             if (!is.null(odds)) {
-              DBI::dbWriteTable(con, "match_avgodds", odds, append = T)
+              # chek if the table exist
+              if (nrow(gs4_find("match_avgodds")) == 0) {
+                ss <- gs4_create("match_avgodds", sheets = odds,))
+              }else {
+                ss = gs4_find("match_avgodds")
+                sheet_append(ss,data = odds)
+              }
+              # DBI::dbWriteTable(con, "match_avgodds", odds, append = T)
             }
 
             }
@@ -255,30 +262,34 @@ classOddsScrapper <- R6Class(public = list(
 init <- classOddsScrapper$new(db = NULL)
 primaryLinks <- init$primaryLinks(res = init$res) %>% unique()
 
-files <- tibble(links=primaryLinks) %>%
-  mutate(group = rep(1:20,length.out = nrow(.))) %>%
-  split(.$group)
+# con <- DBI::dbConnect(RSQLite::SQLite(),glue("inst/app/bookiebuster_{group}.db"))
+init <- classOddsScrapper$new(db = con)
+init$main(primary_links = variable$links)
 
-for (variable in files) {
-  group <- pull(variable,group) %>% unique()
-  job::job(title = paste0("Group_",group) ,{
-    library(glue);library(httr);library(dplyr);library(jsonlite);library(purrr);library(tidyr);library(tibble);library(rvest);library(stringr);library(R6);library(futile.logger);library(logging)
-    con <- DBI::dbConnect(RSQLite::SQLite(),glue("inst/app/bookiebuster_{group}.db"))
-    init <- classOddsScrapper$new(db = con)
-    # primaryLinks <- init$primaryLinks(res = init$res)
-    seasons_ <- init$main(primary_links = variable$links)
-  }, import = "all")
+# files <- tibble(links=primaryLinks) %>%
+#   mutate(group = rep(1:20,length.out = nrow(.))) %>%
+#   split(.$group)
 
-}
-available_data <- function(con) {
-  match_avgodds <- dir("inst/app/",pattern = ".db") %>%
-    map_df(.f = function(x){
-      con <- DBI::dbConnect(RSQLite::SQLite(),glue("inst/app/{x}"))
-      # dbListTables(con)
-      tbl(con,"match_avgodds") %>% collect()
-    })
-  return(match_avgodds)
-}
+# for (variable in files) {
+#   group <- pull(variable,group) %>% unique()
+#   job::job(title = paste0("Group_",group) ,{
+#     library(glue);library(httr);library(dplyr);library(jsonlite);library(purrr);library(tidyr);library(tibble);library(rvest);library(stringr);library(R6);library(futile.logger);library(logging)
+#     con <- DBI::dbConnect(RSQLite::SQLite(),glue("inst/app/bookiebuster_{group}.db"))
+#     init <- classOddsScrapper$new(db = con)
+#     # primaryLinks <- init$primaryLinks(res = init$res)
+#     seasons_ <- init$main(primary_links = variable$links)
+#   }, import = "all")
+
+# }
+# available_data <- function(con) {
+#   match_avgodds <- dir("inst/app/",pattern = ".db") %>%
+#     map_df(.f = function(x){
+#       con <- DBI::dbConnect(RSQLite::SQLite(),glue("inst/app/{x}"))
+#       # dbListTables(con)
+#       tbl(con,"match_avgodds") %>% collect()
+#     })
+#   return(match_avgodds)
+# }
 
 
 

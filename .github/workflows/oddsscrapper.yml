@@ -17,7 +17,19 @@ jobs:
         with:
           packages: |
             any::googlesheets4
+            any::glue
+            any::httr
+            any::dplyr
+            any::jsonlite
+            any::purrr
+            any::tidyr
+            any::tibble
+            any::rvest
+            any::stringr
+            any::R6
+            any::futile.logger
+            any::logging
 
       - name: Import data
         run: |
-          Rscript -e 'source("R/testR.R")'
+          Rscript -e 'source("R/classOddsScrapper.R")'
