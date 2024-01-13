@@ -3,5 +3,4 @@
 /inst/app/o*
 /inst/app/odds.db
 /inst/app/bookiebuster.db
-
-
+.secrets
