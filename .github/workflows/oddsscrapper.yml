@@ -6,6 +6,9 @@ jobs:
   import-data:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
 
@@ -16,6 +19,8 @@ jobs:
             any::googlesheets4
 
       - name: Import data
-        run: Rscript -e 'source("testR.R")'
+        run: |
+          
+          Rscript -e 'source("R/testR.R")'
 
 
