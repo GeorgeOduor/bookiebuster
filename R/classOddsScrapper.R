@@ -242,10 +242,10 @@ classOddsScrapper <- R6Class(public = list(
             if (!is.null(odds)) {
               # chek if the table exist
               if (nrow(gs4_find("match_avgodds")) == 0) {
-                ss <- gs4_create("match_avgodds", sheets = odds,))
-              }else {
-                ss = gs4_find("match_avgodds")
-                sheet_append(ss,data = odds)
+                ss <- gs4_create("match_avgodds", sheets = odds)
+                }else {
+                  ss = gs4_find("match_avgodds")
+                  sheet_append(ss,data = odds)
               }
               # DBI::dbWriteTable(con, "match_avgodds", odds, append = T)
             }
