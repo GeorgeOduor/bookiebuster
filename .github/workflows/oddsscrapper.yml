@@ -29,6 +29,7 @@ jobs:
             any::R6
             any::futile.logger
             any::logging
+            any::reshape2
 
       - name: Import data
         run: |
