@@ -267,7 +267,7 @@ options(
 gs4_auth()
 init <- classOddsScrapper$new(db = NULL)
 primaryLinks <- init$primaryLinks(res = init$res) %>% unique()
-init$main(2,2,primary_links = primaryLinks)
+init$main(primary_links = primaryLinks)
 
 # files <- tibble(links=primaryLinks) %>%
 #   mutate(group = rep(1:20,length.out = nrow(.))) %>%
