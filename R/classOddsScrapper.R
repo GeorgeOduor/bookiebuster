@@ -261,10 +261,7 @@ classOddsScrapper <- R6Class(public = list(
 ))
 init <- classOddsScrapper$new(db = NULL)
 primaryLinks <- init$primaryLinks(res = init$res) %>% unique()
-
-# con <- DBI::dbConnect(RSQLite::SQLite(),glue("inst/app/bookiebuster_{group}.db"))
-init <- classOddsScrapper$new(db = NULL)
-init$main(primary_links = variable$links)
+init$main(primary_links = primaryLinks)
 
 # files <- tibble(links=primaryLinks) %>%
 #   mutate(group = rep(1:20,length.out = nrow(.))) %>%
