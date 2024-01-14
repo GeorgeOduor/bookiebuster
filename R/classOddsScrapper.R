@@ -204,9 +204,9 @@ classOddsScrapper <- R6Class(public = list(
     con <- self$db
     # get available league links
     #primary_links <- self$primaryLinks(self$res)
-    # if (!is.null(number)) {
-    #   primary_links <- primary_links[seq(number)]
-    # }
+    if (!is.null(number)) {
+      primary_links <- primary_links[seq(number)]
+    }
 
     odds <- map(primary_links,.f = function(x){
       #available seasons
