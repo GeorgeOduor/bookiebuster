@@ -1,6 +1,7 @@
 rm(list = ls())
 library(glue);library(httr);library(dplyr);library(jsonlite);library(purrr);library(tidyr);library(tibble);library(rvest)
 library(stringr);library(R6);library(futile.logger);library(logging)
+library(googlesheets4)
 
 classOddsScrapper <- R6Class(public = list(
   headers = c(
@@ -259,6 +260,11 @@ classOddsScrapper <- R6Class(public = list(
     return(odds)
   }
 ))
+options(
+  gargle_oauth_cache = ".secrets/",
+  gargle_oauth_email = "george.wamaya@gmail.com"
+  )
+gs4_auth()
 init <- classOddsScrapper$new(db = NULL)
 primaryLinks <- init$primaryLinks(res = init$res) %>% unique()
 init$main(2,2,primary_links = primaryLinks)
